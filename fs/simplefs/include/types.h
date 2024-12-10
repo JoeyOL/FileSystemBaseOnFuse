@@ -85,8 +85,8 @@ struct sfs_inode
     int                size;                          /* 文件已占用空间 */
     char               target_path[SFS_MAX_FILE_NAME];/* store traget path when it is a symlink */
     int                dir_cnt;
-    struct sfs_dentry* dentry;                        /* 指向该inode的dentry */
-    struct sfs_dentry* dentrys;                       /* 所有目录项 */
+    struct sfs_dentry* dentry;                        /* 指向该inode的父dentry */
+    struct sfs_dentry* dentrys;                       /* 所有目录项的链表头 */
     uint8_t*           data;           
 };  
 
