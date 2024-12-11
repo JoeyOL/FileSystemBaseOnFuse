@@ -133,10 +133,6 @@ int newfs_getattr(const char* path, struct stat * newfs_stat) {
 		newfs_stat->st_mode = S_IFREG | NEWFS_DEFAULT_PERM;
 		newfs_stat->st_size = dentry->inode->size;
 	}
-	else if (NEWFS_IS_SYM_LINK(dentry->inode)) {
-		newfs_stat->st_mode = S_IFLNK | NEWFS_DEFAULT_PERM;
-		newfs_stat->st_size = dentry->inode->size;
-	}
 
 	newfs_stat->st_nlink = 1;
 	newfs_stat->st_uid 	 = getuid();

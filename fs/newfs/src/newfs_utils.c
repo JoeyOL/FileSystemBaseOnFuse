@@ -188,11 +188,9 @@ struct newfs_inode* newfs_alloc_inode(struct newfs_dentry * dentry) {
     
     inode->dir_cnt = 0;
     inode->dentrys = NULL;
-    
-    if (NEWFS_IS_REG(inode)) {
-        inode->data = NULL; // 不涉及文件读写
-    }
+    inode->data = NULL;
 
+    // debug
     byte_cursor = 0;
     bit_cursor = 0;
 
@@ -328,7 +326,7 @@ int newfs_sync_inode(struct newfs_inode * inode) {
             if (data_blk_num > NEWFS_DATA_PER_FILE) break;
         }  
     }
-    inode_d.blk_pointer[data_blk_num] = -1;
+    if(data_blk_num < NEWFS_DATA_PER_FILE) inode_d.blk_pointer[data_blk_num] = -1;
 
         /* 先写inode本身 */
     if (newfs_driver_write(NEWFS_INO_OFS(ino), (uint8_t *)&inode_d, 
@@ -645,9 +643,9 @@ int newfs_mount(struct custom_options options){
                                                       /* 估算各部分大小 */
         super_blks = NEWFS_ROUND_UP(sizeof(struct newfs_super_d), NEWFS_BLK_SZ()) / NEWFS_BLK_SZ();
         int tot_num = newfs_super.sz_disk / newfs_super.sz_blk;
-                                                      /* 布局layout */
+
+        // max_inode估算
         int max_ino = (tot_num - 1 - 1 - super_blks) / (NEWFS_DATA_PER_FILE + 1);
-        // max_inode
         int inode_per_blk = NEWFS_BLK_SZ() / sizeof(struct newfs_inode_d);
         newfs_super_d.max_ino = NEWFS_ROUND_UP(max_ino, inode_per_blk);
 
@@ -703,6 +701,7 @@ int newfs_mount(struct custom_options options){
     newfs_super.is_mounted  = TRUE;
 
 
+    // debug索引位图
     int  byte_cursor = 0;
     int  bit_cursor = 0;
 

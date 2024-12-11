@@ -64,5 +64,4 @@ int   			   newfs_open(const char *, struct fuse_file_info *);
 int   			   newfs_opendir(const char *, struct fuse_file_info *);
 
 
-void 			   newfs_dump_map();
 #endif  /* _newfs_H_ */

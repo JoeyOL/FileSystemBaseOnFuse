@@ -11,23 +11,27 @@ typedef uint16_t     flag16;
 
 typedef enum newfs_file_type {
     NEWFS_REG_FILE,
-    NEWFS_DIR,
-    NEWFS_SYM_LINK
+    NEWFS_DIR
+    // NEWFS_SYM_LINK
 } NEWFS_FILE_TYPE;
 /******************************************************************************
 * SECTION: Macro
 *******************************************************************************/
+// 类型定义
 #define TRUE                    1
 #define FALSE                   0
 #define UINT32_BITS             32
 #define UINT8_BITS              8
 
+// 磁盘布局相关
 #define NEWFS_MAGIC_NUM           0x52415453  
 #define NEWFS_SUPER_OFS           0
 #define NEWFS_ROOT_INO            0
+#define NEWFS_SUPER_BLKS          1
+#define NEWFS_INODE_MAP_BLKS      1
+#define NEWFS_DATA_MAP_BLKS       1
 
-
-
+// 错误类型
 #define NEWFS_ERROR_NONE          0
 #define NEWFS_ERROR_ACCESS        EACCES
 #define NEWFS_ERROR_SEEK          ESPIPE     
@@ -39,28 +43,20 @@ typedef enum newfs_file_type {
 #define NEWFS_ERROR_IO            EIO     /* Error Input/Output */
 #define NEWFS_ERROR_INVAL         EINVAL  /* Invalid Args */
 
+// 约束
 #define NEWFS_MAX_FILE_NAME       128
 #define NEWFS_INODE_PER_FILE      1
 #define NEWFS_DATA_PER_FILE       6
+
+// 默认权限（全开）
 #define NEWFS_DEFAULT_PERM        0777
 
-#define NEWFS_IOC_MAGIC           'S'
-#define NEWFS_IOC_SEEK            _IO(NEWFS_IOC_MAGIC, 0)
-
-#define NEWFS_FLAG_BUF_DIRTY      0x1
-#define NEWFS_FLAG_BUF_OCCUPY     0x2
-
-// 磁盘布局
-#define NEWFS_SUPER_BLKS          1
-#define NEWFS_INODE_MAP_BLKS      1
-#define NEWFS_DATA_MAP_BLKS       1
-#define NEWFS_INODE_BLKS          585
-#define NEWFS_DATA_BLKS           3508
 
 
 /******************************************************************************
 * SECTION: Macro Function
 *******************************************************************************/
+// 磁盘和驱动信息相关
 #define NEWFS_IO_SZ()                     (newfs_super.sz_io)
 #define NEWFS_BLK_SZ()                    (newfs_super.sz_blk)
 #define NEWFS_DISK_SZ()                   (newfs_super.sz_disk)
@@ -72,12 +68,13 @@ typedef enum newfs_file_type {
 #define NEWFS_BLKS_SZ(blks)               ((blks) * NEWFS_BLK_SZ())
 #define NEWFS_ASSIGN_FNAME(pnewfs_dentry, _fname)\ 
                                         memcpy(pnewfs_dentry->fname, _fname, strlen(_fname))
+// 根据索引号求索引偏移
 #define NEWFS_INO_OFS(ino)                (newfs_super.inode_offset + ino*sizeof(struct newfs_inode_d))
+// 根据数据块号求数据块偏移
 #define NEWFS_DATA_OFS(ino)               (newfs_super.data_offset + (ino) * NEWFS_BLKS_SZ(1))
-
+// 文件类型判断
 #define NEWFS_IS_DIR(pinode)              (pinode->dentry->ftype == NEWFS_DIR)
 #define NEWFS_IS_REG(pinode)              (pinode->dentry->ftype == NEWFS_REG_FILE)
-#define NEWFS_IS_SYM_LINK(pinode)         (pinode->dentry->ftype == NEWFS_SYM_LINK)
 
 /******************************************************************************
 * SECTION: FS Specific Structure - In memory structure
@@ -99,7 +96,7 @@ struct newfs_inode
     int                     dir_cnt;
     struct newfs_dentry*    dentry;                        /* 指向该inode的dentry */
     struct newfs_dentry*    dentrys;                       /* 所有目录项 */
-    uint8_t*                data;                           /*数据块指针*/
+    uint8_t*                data;                           /*数据*/
 };  
 
 struct newfs_dentry
